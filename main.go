@@ -14,7 +14,8 @@ import (
 
 func main() {
 
-	fmt.Println("Welcome to streaming HW monitoring")
+	fmt.Println("Project is running on:")
+	fmt.Println("http://localhost:8080")
 	// Setup a tcp connection to port 7777
 	lis, err := net.Listen("tcp", ":7777")
 	if err != nil {

@@ -4,11 +4,13 @@ import { HardwareMonitorClient } from './proto/service_grpc_web_pb';
 import { EmptyRequest } from './proto/service_pb';
 
 import './App.css';
+import {HardwareStats,EmptyRequest as EmptyRequestType} from './service_pb';
 
 function formatBytes(bytes: number, decimals = 2) {
   if (bytes === 0) return '0 Bytes';
 
   if(bytes < 0) bytes = bytes * -1
+
   const k = 1024;
   const dm = decimals < 0 ? 0 : decimals;
   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
@@ -24,23 +26,23 @@ var client = new HardwareMonitorClient('http://localhost:8080');
 function App() {
 
   const [CPU, setCPU] = useState(0);
-  const [MemoryFree, setMemoryFree] = useState(0);
-  const [MemoryUsed, setMemoryUsed] = useState(0);
+  const [MemoryFree, setMemoryFree] = useState('N/A');
+  const [MemoryUsed, setMemoryUsed] = useState('N/A');
 
 
   const getStats = () => {
     // Create our EmptyRequest that we will use to start the stream;
-    var request = new EmptyRequest();
+    var request:EmptyRequestType = new EmptyRequest();
     // Dont worry about the empty Metadata for now, thats covered in another article :)
     var stream = client.monitor(request, {});
     // Start listening on the data event, this is the event that is used to notify that new data arrives
-    stream.on('data', function (response: { toObject: () => any; }) {
+    stream.on('data', function (response: HardwareStats) {
       // Convert Response to Object
       var stats = response.toObject();
       // Set our variable values
       setCPU(stats.cpu);
-      setMemoryFree(stats.memoryFree);
-      setMemoryUsed(stats.memoryUsed);
+      setMemoryFree(formatBytes(stats.memoryFree));
+      setMemoryUsed(formatBytes(stats.memoryUsed));
     });
   }
   // useEffect will make this trigger on component start
